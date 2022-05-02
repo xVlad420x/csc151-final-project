@@ -54,16 +54,63 @@
   (lambda (str-length)
     (letrec ([add-symbol-between-letters-helper
               (lambda (str-length currentlength currentstring x-spaces)
-                (if (equal? (- currentlength (+ 1 str-length)) 0)
-                    (substring currentstring 0 (- (string-length currentstring) 1))
-                    (add-symbol-between-letters-helper str-length (+ currentlength 1)
-                                                       (string-append (give-x-spaces x-spaces) "(string-append " "(string-car " (give-x-letter (- str-length currentlength) "(string-cdr ")
-                                                                      "str2" (give-x-letter (+ 1 (- str-length currentlength))  ")") " str1)\n" currentstring)x-spaces)))])
-      (string-append "(define add-str1-between-str2-letters\n"
+                (cond
+                  [(equal? (- currentlength (+ 1 str-length)) 0)
+                   (substring currentstring 0 (- (string-length currentstring) 1))];;base
+                  [(equal?(- str-length currentlength) str-length)
+                   (add-symbol-between-letters-helper str-length (+ currentlength 1)
+                                                      (string-append (give-x-spaces x-spaces) "(string-append " (give-x-letter (- str-length currentlength) "(string-cdr ")
+                                                                     "str2" (give-x-letter (+ 1 (- str-length currentlength))  ")") " str1)\n" currentstring)x-spaces)]
+                  [else
+                   (add-symbol-between-letters-helper str-length (+ currentlength 1)
+                                                      (string-append (give-x-spaces x-spaces) "(string-append " "(string-car " (give-x-letter (- str-length currentlength) "(string-cdr ")
+                                                                     "str2" (give-x-letter (+ 1 (- str-length currentlength))  ")") " str1)\n" currentstring)x-spaces)]))])
+      (string-append "Create a procedure that adds str1 after each letter in str2. Str2 is "
+                     (number->string str-length)
+                     " letters long\n\n"
+                     "(define string-cdr\n"
+                     " (lambda (str)\n"
+                     "  (substring str 1 (string-length str))))\n\n"
+                     "(define string-car\n"
+                     " (lambda (str)\n"
+                     "  (substring str 0 1)))\n\n"
+                     "(define add-str1-between-str2-letters\n"
                      " (lambda (str1 str2)\n"
                      "  (string-append\n"
-                     (add-symbol-between-letters-helper str-length 0 "" 4)
-                     ")))"))))
+                     (add-symbol-between-letters-helper (- str-length 1) 0 "" 4)
+                     "))"))))
 
-;;;(displayln(add-str1-between-str2-generator 10))
+;;;(displayln(add-str1-between-str2-generator 10)) 10 should be a number between 7 and 12
+
+
+;;; Given a sorted list of grades that is x long. Ex: List. Find the median grade
+
+
+;;example code
+(define find-median-grade
+  (lambda (grade-list)
+    (car
+     (cdr
+      (reverse (cdr (reverse
+        (cdr
+          (reverse (reverse(reverse (reverse(reverse (cdr (reverse
+            (cdr
+              (reverse (reverse
+                (cdr grade-list)))))))))))))))))))
+
+(define give-even-random
+  (lambda (num)
+    (let ([rando (random num)])
+    (if (odd? rando)
+        (give-even-random num)
+        rando))))
+#|
+(define find-median-grade-generator
+  (lambda (list-length currentlist)
+    (cond
+      [(and (even? list-length) (equal? (length currentlist) 2))
+       "(/ (+ (car grade-list) (cadr grade-list)) 2)"
+      [(and (odd? list-length) (equal? (length currentlist) 1))
+       "(/ (car grade-list)"
+|#
                      
