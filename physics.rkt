@@ -32,10 +32,23 @@
     (string-append "We are standing on a " (number->string (list-ref lst 0)) " meter high ledge.\n"
                    "How fast do we have to travel in m/s in order to clear a " (number->string (list-ref lst 1))
                    " meter long gap in front of us\n" "and land onto a " (number->string (list-ref lst 2))
-                   " meter long slab?")))
+                   " meter long slab?\n"
+                   "Assume gravity is 9.8m/s^2\n")))
 
-(define physics-mini-game
+
+(define physics-game
   (lambda ()
-    (physics-mini-game-helper (give-physics-data))))
+    (let* ([options (give-physics-data)]
+           [answer (hit-slab options)])
+    (displayln (physics-mini-game-helper options))
+    (define player-choice (string->number (read-line)))
+      (cond
+        [(and
+          (<= (floor (car answer)) player-choice)
+          (>= (ceiling (cadr answer)) player-choice))
+         (displayln "right answer (next level command)")]
+        [else
+         (displayln "wrong answer (go back a level)")]))))
 
-;(displayln (physics-mini-game))
+;;(physics-game)
+    
