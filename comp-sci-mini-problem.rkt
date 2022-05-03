@@ -21,8 +21,9 @@
                                                         (my-numb-if-generator (- mynumb 1) (+ 1 spacecount)))))])
       (string-append "Create a procedure that returns true if given-numb is an integer between 0 and " (number->string mynumb) "\n\n"
                      "(define is-given-between-zero-and-" (number->string mynumb)"?\n"
-                     " (lambda given-numb)\n"
-                     (my-numb-if-generator mynumb 0)))))
+                     " (lambda (given-numb)\n"
+                     (my-numb-if-generator mynumb 0)
+                     "))"))))
               
 ;(displayln (is-numb-between-zero-and-my-numb-generator? 60))
 ;;;60 shouled be a random number between 5 and 20
@@ -92,18 +93,19 @@
     (car
      (cdr
       (reverse (cdr (reverse
-        (cdr
-          (reverse (reverse(reverse (reverse(reverse (cdr (reverse
-            (cdr
-              (reverse (reverse
-                (cdr grade-list)))))))))))))))))))
+                     (cdr
+                      (reverse (reverse(reverse (reverse(reverse (cdr (reverse
+                                                                       (cdr
+                                                                        (reverse (reverse
+                                                                                  (cdr grade-list)))))))))))))))))))
 
 (define give-even-random
   (lambda (num)
     (let ([rando (random num)])
-    (if (odd? rando)
-        (give-even-random num)
-        rando))))
+      (if (odd? rando)
+          (give-even-random num)
+          rando))))
+
 #|
 (define find-median-grade-generator
   (lambda (list-length currentlist)
@@ -113,4 +115,98 @@
       [(and (odd? list-length) (equal? (length currentlist) 1))
        "(/ (car grade-list)"
 |#
-                     
+
+;;;(car one-elem-list)
+;;; (/ (apply + one-elem-list) 2)
+(define find-median-grade-generator
+  (lambda (grade-list)
+    (letrec ([find-median-grade-generator-helper
+              (lambda (list-length currentlist spacecount parencount extraspaces)
+                (let ([currentlen (length currentlist)]
+                      [rando (give-even-random 10)])
+                  (cond
+                    [(and (even? list-length) (equal? currentlen 2))
+                     (string-append "grade-list" (give-x-letter parencount ")"))];;basea
+                    [(and (odd? list-length) (equal? currentlen 1))
+                     (string-append "grade-list" (give-x-letter parencount ")"))];;baseb
+                    [(or
+                      (and (odd? list-length) (equal? currentlen 2))
+                      (and (even? list-length) (equal? currentlen 3)))
+                     (string-append (give-x-spaces extraspaces) (give-x-spaces spacecount) "(cdr " (find-median-grade-generator-helper list-length (cdr currentlist) (+ 1 spacecount)(+ 1 parencount)extraspaces))];;;no \n
+                    [(or (and (even? list-length) (odd? currentlen))
+                         (and (odd? list-length) (even? currentlen)))
+                     (string-append (give-x-spaces extraspaces) (give-x-spaces spacecount) "(cdr\n" (find-median-grade-generator-helper list-length (cdr currentlist) (+ 1 spacecount)(+ 1 parencount) extraspaces))]
+                    [(or (and (even? list-length) (even? currentlen))
+                         (and (odd? list-length) (odd? currentlen)))
+                     (string-append (give-x-spaces extraspaces) (give-x-spaces spacecount) (give-x-letter rando "(reverse ")
+                                    "(reverse (cdr (reverse\n" (find-median-grade-generator-helper list-length (drop-right currentlist 1) (+ 1 spacecount)(+ parencount (+ 3 rando)) extraspaces))])))])
+(string-append "Given a sorted list of grades that is " (number->string (length grade-list)) " numbers long. Ex: " (list->a_string grade-list) ". Find the median grade\n\n"
+               "(define median-of-" (number->string (length grade-list)) "-long-grades\n"
+               " (lambda (grade-list)\n"
+      (if (even? (length grade-list))
+          (string-append (give-x-spaces 2) "(/ (apply + \n" (find-median-grade-generator-helper (length grade-list) grade-list 0 0 3) ") 2)")
+          (string-append (give-x-spaces 2) "(car \n" (find-median-grade-generator-helper (length grade-list) grade-list 0 0 3) ")"))
+      "))")
+      )))
+
+(define give-grades
+  (lambda (list-length min max)
+    (build-list list-length (lambda (x) (+ min (random (+ 1 (- max min))))))))
+
+(define list->a_string
+  (lambda (lst)
+    (letrec ([list->a_string-helper
+              (lambda (lst)
+                (if (null? lst)
+                    ""
+                    (string-append (number->string (car lst)) " " (list->a_string-helper (cdr lst)))))])
+      (string-append "(list " (substring (list->a_string-helper lst)  0 (- (string-length (list->a_string-helper lst)) 1)) ")"     ))))
+
+
+
+;;; (random-list-element lst) -> any?
+;;;   lst : list? (nonempty)
+;;; Randomly select an element of `lst` (This is SamR's procedure from some project but I probably could've wrote something similar myself)
+(define random-list-element
+  (lambda (lst)
+    (list-ref lst (random (length lst)))))
+
+
+(define part-c
+  (lambda ()
+    (find-median-grade-generator (sort (give-grades (+ 6 (random 11)) 50 100) <))))
+
+(define part-b
+  (lambda ()
+   (add-str1-between-str2-generator (+ 6 (random 7)))))
+
+(define part-a
+  (lambda ()
+    (is-numb-between-zero-and-my-numb-generator? (+ 6 (random 12)))))
+      
+(define part-d
+  (lambda ()
+    "placeholder for good options"))
+
+
+(define comp-sci-minigame-helper
+  (lambda (lst lst2 index)
+    (if (null? lst)
+        ""
+    (let ([rando-element (random-list-element lst)])
+      (cond
+
+        [(equal? rando-element "a")
+         (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-a) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))]
+        [(equal? rando-element "b")
+         (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-b) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))]
+        [(equal? rando-element "c")
+         (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-c) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))]
+        [(equal? rando-element "d")
+         (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-d) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))])))))
+
+(define comp-sci-minigame
+  (lambda ()
+    (comp-sci-minigame-helper (list "a" "b" "c" "d") (list "A" "B" "C" "D") 0)))
+;;;(displayln(comp-sci-minigame))
+      
