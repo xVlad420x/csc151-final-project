@@ -26,3 +26,16 @@
 ;'(62.221311078040834 62.36517538111145)
 ;> (hit-slab (give-physics-data))
 ;'(40.98719883405338 41.55844899201929)
+
+(define physics-mini-game-helper
+  (lambda (lst)
+    (string-append "We are standing on a " (number->string (list-ref lst 0)) " meter high ledge.\n"
+                   "How fast do we have to travel in m/s in order to clear a " (number->string (list-ref lst 1))
+                   " meter long gap in front of us\n" "and land onto a " (number->string (list-ref lst 2))
+                   " meter long slab?")))
+
+(define physics-mini-game
+  (lambda ()
+    (physics-mini-game-helper (give-physics-data))))
+
+;(displayln (physics-mini-game))
