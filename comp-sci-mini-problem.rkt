@@ -140,13 +140,13 @@
                          (and (odd? list-length) (odd? currentlen)))
                      (string-append (give-x-spaces extraspaces) (give-x-spaces spacecount) (give-x-letter rando "(reverse ")
                                     "(reverse (cdr (reverse\n" (find-median-grade-generator-helper list-length (drop-right currentlist 1) (+ 1 spacecount)(+ parencount (+ 3 rando)) extraspaces))])))])
-(string-append "Given a sorted list of grades that is " (number->string (length grade-list)) " numbers long. Ex: " (list->a_string grade-list) ". Find the median grade\n\n"
-               "(define median-of-" (number->string (length grade-list)) "-long-grades\n"
-               " (lambda (grade-list)\n"
-      (if (even? (length grade-list))
-          (string-append (give-x-spaces 2) "(/ (apply + \n" (find-median-grade-generator-helper (length grade-list) grade-list 0 0 3) ") 2)")
-          (string-append (give-x-spaces 2) "(car \n" (find-median-grade-generator-helper (length grade-list) grade-list 0 0 3) ")"))
-      "))")
+      (string-append "Given a sorted list of grades that is " (number->string (length grade-list)) " numbers long. Ex: " (list->a_string grade-list) ". Find the median grade\n\n"
+                     "(define median-of-" (number->string (length grade-list)) "-long-grades\n"
+                     " (lambda (grade-list)\n"
+                     (if (even? (length grade-list))
+                         (string-append (give-x-spaces 2) "(/ (apply + \n" (find-median-grade-generator-helper (length grade-list) grade-list 0 0 3) ") 2)")
+                         (string-append (give-x-spaces 2) "(car \n" (find-median-grade-generator-helper (length grade-list) grade-list 0 0 3) ")"))
+                     "))")
       )))
 
 (define give-grades
@@ -178,7 +178,7 @@
 
 (define part-b
   (lambda ()
-   (add-str1-between-str2-generator (+ 6 (random 7)))))
+    (add-str1-between-str2-generator (+ 6 (random 7)))))
 
 (define part-a
   (lambda ()
@@ -186,27 +186,83 @@
       
 (define part-d
   (lambda ()
-    "placeholder for good options"))
+    (random-list-element (list
+     (string-append "Write a regular expression, ab, that matches nonempty words that consist only of the letters\n"
+     "lowercase a and lowercase b and that start and end with the same letter.\n\n"
+                    "(define ab\n"
+                    " (rex-any-of\n"
+                    "  (rex-concat (rex-string " "a" ")\n"
+                    "         (rex-repeat-0 (rex-char-range " "#\a"  "#\b" "))\n"
+                    "         (rex-string " "a" "))\n"
+                    "  (rex-concat (rex-string " "b" ")\n" 
+                    "         (rex-repeat-0 (rex-char-range " "#\a" "#\b" "))\n"
+                    "         (rex-string " "b" "))\n"
+                    "  (rex-string " "a" ")\n"
+                    "  (rex-string " "b" ")))\n")
+     (string-append "Write a tail recursive procedure called replicate that takes inputs n and x.\n"
+     "Replicate should create a list with x inside the list n times (so it is n elements long).\n\n"
+                    "(define replicate\n"
+                    "  (lambda (n x)\n"
+                    "    (letrec ([replicate-helper\n"
+                    "              (lambda (n x so-far)\n"
+                    "                (if (zero? n)\n"
+                    "                    so-far\n"
+                    "                    (replicate-helper (- n 1) x (cons x so-far))))])\n"
+                    "      (replicate-helper n x '()))))\n")
+     (string-append "Write a procedure that finds the largest number in a vector\n\n"
+                    "(define number-vector-largest/helper\n"
+                    " (lambda (vec pos)\n"
+                    "   (let ([current (vector-ref vec pos)])\n"
+                    "     (if (zero? pos)\n"
+                    "         current\n"
+                    "         (max current\n"
+                    "              (number-vector-largest/helper vec (- pos 1)))))))\n\n"
+                    "(define number-vector-largest\n"
+                    " (lambda (vec)\n"
+                    "   (let ([last (- (vector-length vec) 1)])\n"
+                    "     (number-vector-largest/helper vec last))))\n")
+     (string-append "Write the append procedure yourself. Append puts two lists together into one.\n\n"
+                    "(define append\n"
+                    " (lambda (l1 l2)\n"
+                    "   (match l1\n"
+                    "     ['() l2]\n"
+                    "     [(cons x tail) (cons x (append tail l2))])))\n")
+     (string-append "Write the length procedure yourself. Length returns a number which corresponds to the length of a list.\n\n"
+                    "(define length\n"
+                    " (lambda (lst)\n"
+                    "   (if (null? lst)\n"
+                    "       0\n"
+                    "       (+ 1 (length (cdr lst))))))\n")
+     (string-append "Write a procedure that sums all the values of a binary tree consisting of only numbers\n\n"
+                    "(define binary-tree-sum\n"
+                    " (lambda (tree)\n"
+                    "   (if (empty-tree? tree)\n"
+                    "       0\n"
+                    "       (+ (bt/t tree)\n"
+                    "          (binary-tree-sum (bt/l tree))\n"
+                    "          (binary-tree-sum (bt/r tree))))))\n")
+   
+
+                    ))))
 
 
 (define comp-sci-minigame-helper
   (lambda (lst lst2 index)
     (if (null? lst)
         ""
-    (let ([rando-element (random-list-element lst)])
-      (cond
+        (let ([rando-element (random-list-element lst)])
+          (cond
 
-        [(equal? rando-element "a")
-         (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-a) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))]
-        [(equal? rando-element "b")
-         (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-b) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))]
-        [(equal? rando-element "c")
-         (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-c) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))]
-        [(equal? rando-element "d")
-         (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-d) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))])))))
+            [(equal? rando-element "a")
+             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-a) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))]
+            [(equal? rando-element "b")
+             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-b) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))]
+            [(equal? rando-element "c")
+             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-c) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))]
+            [(equal? rando-element "d")
+             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-d) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))])))))
 
 (define comp-sci-minigame
   (lambda ()
     (comp-sci-minigame-helper (list "a" "b" "c" "d") (list "A" "B" "C" "D") 0)))
 ;;;(displayln(comp-sci-minigame))
-      
