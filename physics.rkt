@@ -33,7 +33,7 @@
                    "How fast do we have to travel in m/s in order to clear a " (number->string (list-ref lst 1))
                    " meter long gap in front of us\n" "and land onto a " (number->string (list-ref lst 2))
                    " meter long slab?\n"
-                   "Assume gravity is 9.8m/s^2\n")))
+                   "Assume gravity is 9.8m/s^2 and give the answer as a number (with or without decimals)\n")))
 
 
 (define physics-game
@@ -51,4 +51,3 @@
          (displayln "wrong answer (go back a level)")]))))
 
 ;;(physics-game)
-    
