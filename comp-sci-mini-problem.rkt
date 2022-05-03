@@ -247,22 +247,45 @@
 
 
 (define comp-sci-minigame-helper
-  (lambda (lst lst2 index)
-    (if (null? lst)
-        ""
-        (let ([rando-element (random-list-element lst)])
+  (lambda (answerlst lst2 index)
           (cond
+            [(null? answerlst)
+                    ""]
+            [(equal? (car answerlst) "a")
+             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-a) "\n\n\n" (comp-sci-minigame-helper (cdr answerlst) lst2 (+ 1 index)))]
+            [(equal? (car answerlst) "b")
+             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-b) "\n\n\n" (comp-sci-minigame-helper (cdr answerlst) lst2 (+ 1 index)))]
+            [(equal? (car answerlst) "c")
+             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-c) "\n\n\n" (comp-sci-minigame-helper (cdr answerlst) lst2 (+ 1 index)))]
+            [(equal? (car answerlst) "d")
+             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-d) "\n\n\n" (comp-sci-minigame-helper (cdr answerlst) lst2 (+ 1 index)))])))
 
-            [(equal? rando-element "a")
-             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-a) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))]
-            [(equal? rando-element "b")
-             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-b) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))]
-            [(equal? rando-element "c")
-             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-c) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))]
-            [(equal? rando-element "d")
-             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-d) "\n\n\n" (comp-sci-minigame-helper (remove rando-element lst) lst2 (+ 1 index)))])))))
+(define create-random-set-abcd
+  (lambda (lst);;;should be (list a b c d)
+    
+     (if (null? lst)
+        null
+        (let ([rando-element (random-list-element lst)])
+        (cons rando-element (create-random-set-abcd (remove rando-element lst)))))))
 
-(define comp-sci-minigame
+(define introtext
+  (string-append "Here are 4 procedures that are syntactically correct and accomplish the task listed.\n"
+                 "Although all procedures are functional, (in both senses) 3 of them are coded very poorly.\n"
+                 "Choose the answer choice with the procedure that wouldn't make SamR cry (the one that is coded in the best style)\n"
+                 "Give the answer in this format: e\n\n\n"))
+                 
+
+(define comp-sci-game
   (lambda ()
-    (comp-sci-minigame-helper (list "a" "b" "c" "d") (list "A" "B" "C" "D") 0)))
-;;;(displayln(comp-sci-minigame))
+    (let* ([options (list "A" "B" "C" "D")]
+           [order (create-random-set-abcd (list "a" "b" "c" "d"))]
+           [correct-answer-index (index-of order "d")])
+    (displayln (string-append introtext (comp-sci-minigame-helper order options 0)))
+    (define player-choice (string-upcase (read-line)))
+      (cond
+        [(equal? correct-answer-index (index-of options player-choice))
+         (displayln "right answer (next level command)")]
+        [else
+         (displayln "wrong answer (go back a level)")]))))
+
+;;;(comp-sci-game)
