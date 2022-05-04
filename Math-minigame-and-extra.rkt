@@ -113,17 +113,17 @@
                        (mouth-beard color)
                        (face-no-mouth color))))
 
-    (define old-man-face
-      (lambda (color)
-        (above
-         (old-man-face-1 color)
-         (rectangle 30 4 'solid "grey")
+ 
+    (define old-man
+      (above
+         old-man-face-1
+         (overlay/align 'center 'top (above(rectangle 30 4 'solid "grey")
          (rectangle 25 4 'solid "grey")
          (rectangle 24 4 'solid "grey")
          (rectangle 21 4 'solid "grey")
          (rectangle 18 4 'solid "grey")
-         (rectangle 16 4 'solid "grey"))))
-
+         (rectangle 16 4 'solid "grey"))
+                        (rectangle 50 150 'outline 'black))))
 
       
 
