@@ -49,12 +49,20 @@
                    "What is the probability of this event happening "
                    (number->string spins)
                    " times in a row?\n"
-                   "Give your answer as a fraction")))
+                   "Give your answer as a fraction or a decimal rounded to the nearest 10,000th")))
 
 (define math-game-calculator
   (lambda (slices spins)
     (let ([chance-once (+ (/ 1 slices) (/ (/ (- slices 1) 2) slices))])
       (expt chance-once spins))))
+
+(define floor-10000th
+  (lambda (num)
+    (/ (floor (* num 10000)) 10000)))
+
+(define ceiling-10000th
+  (lambda (num)
+    (/ (ceiling (* num 10000)) 10000)))
 
 (define math-game
   (lambda ()
@@ -62,15 +70,14 @@
            [question-lst (give-number-and-opposite-col slices)]
            [spins (give-spins)]
            [answer (math-game-calculator slices spins)])
+      (displayln answer)
       (displayln (math-game-helper slices question-lst spins))
       (define player-choice (string->number (read-line)))
       (cond
-        [(equal? answer player-choice)
+        [(and (>= answer (floor-10000th player-choice))
+              (<= answer (ceiling-10000th player-choice)))
          (displayln "right answer (next level command)")]
         [else
          (displayln "wrong answer (go back a level)")]))))
 
 ;formula = ((1/slices + ((slices - 1)/2)/slices)^times)
-
-      
-      
