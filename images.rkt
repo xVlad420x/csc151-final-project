@@ -98,47 +98,152 @@
                          (rectangle 60 180 'solid "black"))
                   (rectangle 60 240 'solid "black")
                   (rectangle 60 300 'solid "black"))))
+                  
+                  ;;INTRODUCTORY IMAGE FOR LEVEL 2
+
+
+;;  futuristic space ship
+
+(define floor-strct (rectangle 100 50 'solid "Gainsboro"))
+(define window (beside
+                (rectangle 8 30 'solid "Gainsboro")
+                 (rectangle 10 30 'solid "royal blue")
+                                    (rectangle 8 30 'solid "Gainsboro")))
+(define pair-of-windows (beside
+                         window window))
+(define windows (beside
+                 pair-of-windows pair-of-windows))
+(define floor (overlay windows floor-strct))
+(define building
+  (above
+   floor floor floor floor floor floor floor))
+
+
+(define red-window (beside
+                (rectangle 8 30 'solid "Gainsboro")
+                 (rectangle 10 30 'solid "red")
+                                    (rectangle 8 30 'solid "Gainsboro")))
+(define pair-of-red-windows (beside
+                         red-window red-window))
+(define red-windows (beside
+                 pair-of-red-windows pair-of-red-windows))
+
+(define red-floor (overlay red-windows floor-strct))
+
+(define red-wall (above
+   red-floor red-floor red-floor red-floor red-floor red-floor red-floor))
+
+
+(define walls
+ (above
+  (rotate -90 building)
+  (overlay
+  (radial-star 32 30 40 "outline" "white")
+  (rectangle 350 80 'solid "Gainsboro"))
+  (rotate -90 red-wall)
+  (overlay
+  (radial-star 32 30 40 "outline" "white")
+  (rectangle 350 80 'solid "Gainsboro"))
+  (rotate -90 building)))
+
+
+(define arm-1
+  (lambda (color)
+    (rectangle 20 20 'solid color)))
+
+
+
+(define arm-2
+  (lambda (color)
+    (rectangle 15 182 'solid color)))
+
+(define legs
+  (beside (rectangle 15 100 'solid "olive")
+             (rectangle 20 100 'solid "Gainsboro")
+             (rectangle 15 100 'solid "olive")))
 
 (define eyes
-  (beside
-   (overlay
-    (square 10  'solid "brown")
-    (square 20 'solid "black"))
-   (rectangle 15 4 'solid "black")
-   (overlay
-    (square 10  'solid "brown")
-    (square 20 'solid "black"))))
+  (lambda (color)
+    (beside
+     (overlay
+      (square 10  'solid  color)
+      (square 20 'solid "black"))
+     (rectangle 15 4 'solid "black")
+     (overlay
+      (square 10  'solid  color)
+      (square 20 'solid "black")))))
 
 
 (define face-no-mouth
-  (overlay
-   eyes
-   (circle 36 'solid "brown")))
+  (lambda (color)
+    (overlay
+     (eyes color)
+     (circle 36 'solid color))))
+
+
 (define mouth-beard
+    (above
+     (rectangle 58 8 'solid "Dim Gray")
+     (overlay/align 'center 'bottom
+                     (rectangle 20 5 'solid "red")
+                     (rectangle 45 8 'solid "Dim Gray"))
+                     (rectangle 35 4 'solid "Dim Gray")))
+
+    (define old-man-face-1
+      (lambda (color)
+        (overlay/align 'center 'bottom
+                       mouth-beard
+                       (face-no-mouth color))))
+
+
+
+    (define old-man-face
+      (lambda (color)
+        (above
+         (old-man-face-1 'pink)
+         (rectangle 30 4 'solid "Dim Gray")
+         (rectangle 25 4 'solid "Dim Gray")
+         (rectangle 24 4 'solid "Dim Gray")
+         (rectangle 21 4 'solid "Dim Gray")
+         (rectangle 18 4 'solid "Dim Gray")
+         (rectangle 16 4 'solid "Dim Gray"))))
+         
+(define old-man-chest
+      (above
+       (triangle 30 'solid "olive")
+         (old-man-face 'pink)
+         (overlay/align 'center 'top (above
+         (rectangle 17 4 'solid "Dim Gray")
+         (rectangle 16 4 'solid "Dim Gray")
+         (rectangle 14 4 'solid "Dim Gray"))
+                        (rectangle 50 150 'solid 'olive))))
+
+
+(define old-man-body
   (above
-   (rectangle 58 8 'solid "grey")
-   (overlay/align 'center 'bottom
-                  (rectangle 20 5 'solid "red")
-                  (rectangle 45 8 'solid "grey"))
-   (rectangle 35 4 'solid "grey")))
-
-(define old-man-face-1
-  (overlay/align 'center 'bottom
-                 mouth-beard
-                 face-no-mouth))
-
-
+   (beside/align 'center
+                 (arm-1 "olive")
+                 old-man-chest
+                 (arm-1 "olive"))
+   legs))
 
 (define old-man
-  (above
-   old-man-face-1
-   (overlay/align 'center 'top (above(rectangle 30 4 'solid "grey")
-                                     (rectangle 25 4 'solid "grey")
-                                     (rectangle 24 4 'solid "grey")
-                                     (rectangle 21 4 'solid "grey")
-                                     (rectangle 18 4 'solid "grey")
-                                     (rectangle 16 4 'solid "grey"))
-                  (rectangle 50 150 'outline 'black))))
+    (beside/align 'top
+                  old-man-body
+                   (rectangle 15 162 'solid "white")))
+
+(define level-2
+  (overlay/align 'center 'bottom
+                 old-man
+                 walls))
+
+
+
+
+
+         
+
+
 
 
 (define level-2-win
