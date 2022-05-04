@@ -151,9 +151,9 @@ The following random procedures produces a random list of 8 elements for the gam
       (displayln "type answer below matching the case and comma. (Ex. O - Oxygen,)")
       (define player-choice (read-line))
       (cond
-        [(not (member? player-choice 8-random-elements-including-noble-gases)) 
-         (displayln "INVALID OPTION TRY AGAIN")
-         (chem-game)]
+        ;[(not (member? player-choice 8-random-elements-including-noble-gases)) 
+        ; (displayln "INVALID OPTION TRY AGAIN")
+        ; (chem-game)]
         [(member? player-choice periodic-table-noble-gases)
          (displayln "right answer (next level command)")]
         [else
