@@ -127,6 +127,19 @@
 
       
 
-
-
+(define person
+  (lambda (skin-color shirt-color pants-color weapon)
+    (let ([base (above (circle 25 'solid skin-color)
+           (above (rectangle 140 20 'solid shirt-color)
+                  (rectangle 40 50 'solid shirt-color))
+           (rectangle 40 80 'solid pants-color))])
+    (cond
+      [(equal? weapon sword)
+    (overlay base weapon)]
+      [(equal? weapon spear)
+       (beside/align 'bottom base weapon)]
+      [(equal? weapon bow)
+       (beside base weapon)]
+      [else
+       (error "invalid weapon!")]))))
     
