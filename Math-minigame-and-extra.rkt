@@ -19,11 +19,11 @@
 
 (define number
   (lambda ()
-  (random 0 315)))
+    (random 0 315)))
 
 (define roulette
   (lambda (color slot)
-     (let* ( [fate (random 0 number)])
+    (let* ( [fate (random 0 number)])
       (cond
         [(and
           (equal? fate slot)
@@ -63,5 +63,70 @@
                  (number->string (random 1 11)) " times in a row?"))
 
 
+;;IMAGES FOR MATH LEVEL
+
+(define (koch-curve n)
+  (cond
+    [(zero? n) (square 1 "solid" "blue")]
+    [else
+     (local [(define smaller (koch-curve (- n 1)))]
+       (beside/align "bottom"
+                     smaller
+                     (rotate 60 smaller)
+                     (rotate -60 smaller)
+                     smaller))]))
 
 
+;;Old man (Wolf)
+;; Old man face
+
+(define eyes
+  (lambda (color)
+    (beside
+     (overlay
+      (square 10  'solid  color)
+      (square 20 'solid "black"))
+     (rectangle 15 4 'solid "black")
+     (overlay
+      (square 10  'solid  color)
+      (square 20 'solid "black")))))
+
+
+(define face-no-mouth
+  (lambda (color)
+    (overlay
+     (eyes color)
+     (circle 36 'solid color))))
+
+(define mouth-beard
+  (lambda (color)
+    (above
+     (rectangle 58 8 'solid "grey")
+     (overlay/align 'center 'bottom
+                     (rectangle 20 5 'solid "red")
+                     (rectangle 45 8 'solid "grey"))
+                     (rectangle 35 4 'solid "grey"))))
+
+    (define old-man-face-1
+      (lambda (color)
+        (overlay/align 'center 'bottom
+                       (mouth-beard color)
+                       (face-no-mouth color))))
+
+    (define old-man-face
+      (lambda (color)
+        (above
+         (old-man-face-1 color)
+         (rectangle 30 4 'solid "grey")
+         (rectangle 25 4 'solid "grey")
+         (rectangle 24 4 'solid "grey")
+         (rectangle 21 4 'solid "grey")
+         (rectangle 18 4 'solid "grey")
+         (rectangle 16 4 'solid "grey"))))
+
+
+      
+
+
+
+    
