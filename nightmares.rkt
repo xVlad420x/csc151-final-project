@@ -70,7 +70,6 @@
          (displayln "Your answer must be a number\n")
          (physics-results (numbercheck) answer skin-color shirt-color pants-color weapon)]))))
 
-;;(physics-game)
 ;Definitions
 (define periodic-table-elements
   (file->lines "elements.txt"))
@@ -84,9 +83,9 @@
 ;test periodic-table-elements-without-noble-gases
 
 ;(test-equal? "brief check to see if elements were removed by looking at length"
-; (length periodic-table-elements-without-noble-gases)
-; (- (length periodic-table-elements)
-;  (length periodic-table-noble-gases)))
+;             (length periodic-table-elements-without-noble-gases)
+;             (- (length periodic-table-elements)
+;                (length periodic-table-noble-gases)))
 
 ;RANDOM PROCEDURES
 
@@ -99,22 +98,45 @@
 
 
 ;;; (random-periodic-element) -> any?
-;;; Randomly select an element from 'periodic-table-elements'
+;;; Randomly select an element from 'periodic-table-elements-without-noble-gases'
 (define random-periodic-element
   (lambda ()
-    (random-list-element periodic-table-elements)))
+    (random-list-element periodic-table-elements-without-noble-gases)))
 
 #|
 The following random procedures produces a random list of 8 elements for the game
 |#
 ;;; (random-periodic-elements) -> any?
 ;;;  n: integer?
-;;; randomly builds a list of n amount of 'periodic-table-elements'
+;;; randomly builds a list of n amount of 'periodic-table-elements-without-noble-gases'
 (define random-periodic-elements
   (lambda (n)
     (if (zero? n)
         null
         (cons (random-periodic-element) (random-periodic-elements (- n 1))))))
+
+(define fix-duplicate-noble-gases-helper
+  (lambda (list-8-elements occurences)
+    ;(displayln (car list-8-elements))
+    ;(displayln occurences)
+    (cond
+      [(null? list-8-elements)
+       null]
+      [(member? (car list-8-elements) periodic-table-elements-without-noble-gases)
+       (cons (car list-8-elements) (fix-duplicate-noble-gases-helper (cdr list-8-elements) occurences))]
+      [(and (not (member? (car list-8-elements) periodic-table-elements-without-noble-gases))
+            (= occurences 0))
+       (cons (car list-8-elements) (fix-duplicate-noble-gases-helper (cdr list-8-elements) (+ 1 occurences)))]
+      [(and (not (member? (car list-8-elements) periodic-table-elements-without-noble-gases)) (> occurences 0))
+       (cons (random-periodic-element) (fix-duplicate-noble-gases-helper (cdr list-8-elements) (+ 1 occurences)))])))
+
+(define fix-duplicate-noble-gases
+  (lambda (list-8-elements)
+    (fix-duplicate-noble-gases-helper list-8-elements 0)))
+
+          
+  
+  
 
 ;produces a list of 8 random 'periodic-table-elements'
 (define 8-random-elements
@@ -153,9 +175,18 @@ The following random procedures produces a random list of 8 elements for the gam
 ;;; in the question.
 (define 8-random-elements-including-noble-gases
   (lambda()
-    (let*([8-random-table-elements (8-random-elements)]
-          [selected-val (random-list-element 8-random-table-elements)])
-      (replace-all selected-val (random-noble-gas) 8-random-table-elements))))
+    (let* ([8-random-table-elements (8-random-elements)]
+           [selected-val (random-list-element 8-random-table-elements)])
+      (replace-all selected-val (random-noble-gas) (fix-duplicate-noble-gases 8-random-table-elements)))))
+
+(define my-list '("Pm - Promethium,"
+                  "He - Helium,"
+                  "He - Helium,"
+                  "He - Helium,"
+                  "Ir - Iridium,"
+                  "He - Helium,"
+                  "La - Lanthanum,"
+                  "Og - Oganesson,"))
 
 ;tests
 
@@ -190,12 +221,16 @@ The following random procedures produces a random list of 8 elements for the gam
 ;;; checks to see if a list contains an element from 'periodic-table-noble-gases'
 (define contains-noble-gas?
   (lambda (lst)
-    (< 0 (tally (section member? <> periodic-table-noble-gases) lst))))
+    (= 1 (tally (section member? <> periodic-table-noble-gases) lst))))
+
+(define contains-more-than-1-gas?
+  (lambda (lst)
+    (= 1 (tally (section member? <> periodic-table-noble-gases) lst))))
 
 ;random procedure used for the 'random-experiment test'
 (define experiment
   (lambda ()
-    (contains-noble-gas? (8-random-elements-including-noble-gases))))
+    (contains-noble-gas? (fix-duplicate-noble-gases (8-random-elements-including-noble-gases)))))
 
 ;the question always contains a noble gas
 (test-equal? "always contains a noble gas"
@@ -210,28 +245,56 @@ The following random procedures produces a random list of 8 elements for the gam
 ;instructions:
 
 
+(define grab-correct-noble
+  (lambda (8-list)
+    (cond
+      [(null? 8-list)
+       "This shouldn't happen"]
+      [(member? (car 8-list) periodic-table-noble-gases)
+       (car 8-list)]
+      [else
+       (grab-correct-noble (cdr 8-list))])))
+
+
+
+(define chem-results
+  (lambda (player-choice 8-list skin-color shirt-color pants-color weapon) ;;;num is a numb while answer is a list of 2 elems
+    (cond
+      [(and (member? player-choice 8-list)(member? player-choice periodic-table-noble-gases))
+       (displayln "Right answer!\n\n")
+       (displayln (list-ref story-list 6))
+       (displayln (level-1-win  skin-color shirt-color pants-color weapon))
+       (math-game skin-color shirt-color pants-color weapon)]
+      [else
+       (displayln "Wrong answer!\n\n")
+       (displayln (list-ref story-list 5))
+       (displayln level-1-lose)
+       (physics-game skin-color shirt-color pants-color weapon)])))
+
+
 (define chem-game
   (lambda (skin-color shirt-color pants-color weapon)
     (let*([8-random-table-elements (8-random-elements)]
           [selected-val (random-list-element 8-random-table-elements)]
-          [8-random-elements-including-noble-gases (replace-all selected-val (random-noble-gas) 8-random-table-elements)])
+          [8-random-elements-including-noble-gases (replace-all selected-val (random-noble-gas) 8-random-table-elements)]
+          [8-list (fix-duplicate-noble-gases 8-random-elements-including-noble-gases)])
       (displayln (list-ref story-list 4))
       (displayln level-1)
-      (displayln 8-random-elements-including-noble-gases)
+      (displayln 8-list)
       (displayln "which of the following is a noble gas?")
-      (displayln "type answer below matching the case and comma. (Ex. O - Oxygen,)")
-      (define player-choice (read-line))
+      (displayln "Type the answer below matching the case and comma. (Ex. O - Oxygen,)")
+      (define player-choice (cheat-menu (read-line) skin-color shirt-color pants-color weapon))
       (cond
-        [(member? player-choice periodic-table-noble-gases)
-         (displayln "Right answer!\n\n")
-         (displayln (list-ref story-list 6))
-         (displayln (level-1-win  skin-color shirt-color pants-color weapon))
-         (math-game skin-color shirt-color pants-color weapon)]
+        [(equal? player-choice "answer")
+         (displayln (string-append "The correct answer is " (grab-correct-noble 8-list) "\n"))
+         (chem-results (read-line) 8-list skin-color shirt-color pants-color weapon)]
+        [(equal? player-choice "retry")
+         (chem-game skin-color shirt-color pants-color weapon)]
+        [(equal? player-choice "teleport")
+         (teleport-menu skin-color shirt-color pants-color weapon)]
         [else
-         (displayln "Wrong answer!\n\n")
-         (displayln (list-ref story-list 5))
-         (displayln level-1-lose)
-         (physics-game skin-color shirt-color pants-color weapon)]))))
+         (chem-results player-choice 8-list skin-color shirt-color pants-color weapon)]))))
+
 (define roulette-slices
   (lambda ()
     (let ([rando (random 13 102)])
