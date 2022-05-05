@@ -181,9 +181,7 @@
   (lambda (old-list new-list words)
     (if (null? old-list)
         words
-        (if (equal? (car words) (car old-list))
-            (replace-words (cdr old-list) new-list (replace-all (car old-list) (random-list-element new-list) (cdr words)))
-            (replace-words old-list new-list (cdr words))))))
+        (replace-words (cdr old-list) new-list (replace-all (car old-list) (random-list-element new-list) words)))))
 
 
 (define my-story
@@ -211,9 +209,12 @@
         words
         (replace-words-all-categories (cdr categories) (replace-words-category (car categories) words)))))
 
-(define my-story-random
+(define my-story-random-list-version
   (let ([x (map string-split my-story)])
     (map (section replace-words-all-categories all-categories <>) x)))
+
+(define my-story-random
+  (map (section string-join <>) my-story-random-list-version))
   
 
 
