@@ -33,42 +33,42 @@
 
 
 (define physics-results
-  (lambda (num answer skin-color shirt-color pants-color weapon) ;;;num is a numb while answer is a list of 2 elems
+  (lambda (num answer skin-color shirt-color pants-color weapon the-story) ;;;num is a numb while answer is a list of 2 elems
     (cond
       [(and
         (<= (floor (car answer)) num)
         (>= (ceiling (cadr answer)) num))
        (displayln "Right answer!\n\n")
-       (displayln (list-ref story-list 3))
+       (displayln (list-ref the-story 3))
        (displayln (level-0-win skin-color shirt-color pants-color weapon))
-       (chem-game skin-color shirt-color pants-color weapon)]
+       (chem-game skin-color shirt-color pants-color weapon the-story)]
       [else
        (displayln "YOU'RE DEAD\n\n")
-       (displayln (list-ref story-list 2))
+       (displayln (list-ref the-story 2))
        (displayln (level-0-lose skin-color shirt-color pants-color weapon))])))
 
 
 (define physics-game
-  (lambda (skin-color shirt-color pants-color weapon)
+  (lambda (skin-color shirt-color pants-color weapon the-story)
     (let* ([options (give-physics-data)]
            [answer (hit-slab options)])
-      (displayln (list-ref story-list 1))
+      (displayln (list-ref the-story 1))
       (displayln level-0)
       (displayln (physics-mini-game-helper options))
-      (define player-choice (cheat-menu (read-line) skin-color shirt-color pants-color weapon))
+      (define player-choice (cheat-menu (read-line) skin-color shirt-color pants-color weapon the-story))
       (cond
         [(number? (string->number player-choice))
-         (physics-results (string->number player-choice) answer skin-color shirt-color pants-color weapon)]
+         (physics-results (string->number player-choice) answer skin-color shirt-color pants-color weapon the-story)]
         [(equal? player-choice "answer")
          (displayln (string-append "The answer is any number between " (number->string (floor (car answer))) " and " (number->string (ceiling (cadr answer))) "\n"))
-         (physics-results (numbercheck) answer skin-color shirt-color pants-color weapon)]
+         (physics-results (numbercheck) answer skin-color shirt-color pants-color weapon the-story)]
         [(equal? player-choice "retry")
-         (physics-game skin-color shirt-color pants-color weapon)]
+         (physics-game skin-color shirt-color pants-color weapon the-story)]
         [(equal? player-choice "teleport")
-         (teleport-menu skin-color shirt-color pants-color weapon)]
+         (teleport-menu skin-color shirt-color pants-color weapon the-story)]
         [else
          (displayln "Your answer must be a number\n")
-         (physics-results (numbercheck) answer skin-color shirt-color pants-color weapon)]))))
+         (physics-results (numbercheck) answer skin-color shirt-color pants-color weapon the-story)]))))
 
 ;Definitions
 (define periodic-table-elements
@@ -258,42 +258,42 @@ The following random procedures produces a random list of 8 elements for the gam
 
 
 (define chem-results
-  (lambda (player-choice 8-list skin-color shirt-color pants-color weapon) ;;;num is a numb while answer is a list of 2 elems
+  (lambda (player-choice 8-list skin-color shirt-color pants-color weapon the-story) ;;;num is a numb while answer is a list of 2 elems
     (cond
       [(and (member? player-choice 8-list)(member? player-choice periodic-table-noble-gases))
        (displayln "Right answer!\n\n")
-       (displayln (list-ref story-list 6))
+       (displayln (list-ref the-story 6))
        (displayln (level-1-win  skin-color shirt-color pants-color weapon))
-       (math-game skin-color shirt-color pants-color weapon)]
+       (math-game skin-color shirt-color pants-color weapon the-story)]
       [else
        (displayln "Wrong answer!\n\n")
-       (displayln (list-ref story-list 5))
+       (displayln (list-ref the-story 5))
        (displayln level-1-lose)
-       (physics-game skin-color shirt-color pants-color weapon)])))
+       (physics-game skin-color shirt-color pants-color weapon the-story)])))
 
 
 (define chem-game
-  (lambda (skin-color shirt-color pants-color weapon)
+  (lambda (skin-color shirt-color pants-color weapon the-story)
     (let*([8-random-table-elements (8-random-elements)]
           [selected-val (random-list-element 8-random-table-elements)]
           [8-random-elements-including-noble-gases (replace-all selected-val (random-noble-gas) 8-random-table-elements)]
           [8-list (fix-duplicate-noble-gases 8-random-elements-including-noble-gases)])
-      (displayln (list-ref story-list 4))
+      (displayln (list-ref the-story 4))
       (displayln level-1)
       (displayln 8-list)
       (displayln "which of the following is a noble gas?")
       (displayln "Type the answer below matching the case and comma. (Ex. O - Oxygen,)")
-      (define player-choice (cheat-menu (read-line) skin-color shirt-color pants-color weapon))
+      (define player-choice (cheat-menu (read-line) skin-color shirt-color pants-color weapon the-story))
       (cond
         [(equal? player-choice "answer")
          (displayln (string-append "The correct answer is " (grab-correct-noble 8-list) "\n"))
-         (chem-results (read-line) 8-list skin-color shirt-color pants-color weapon)]
+         (chem-results (read-line) 8-list skin-color shirt-color pants-color weapon the-story)]
         [(equal? player-choice "retry")
-         (chem-game skin-color shirt-color pants-color weapon)]
+         (chem-game skin-color shirt-color pants-color weapon the-story)]
         [(equal? player-choice "teleport")
-         (teleport-menu skin-color shirt-color pants-color weapon)]
+         (teleport-menu skin-color shirt-color pants-color weapon the-story)]
         [else
-         (chem-results player-choice 8-list skin-color shirt-color pants-color weapon)]))))
+         (chem-results player-choice 8-list skin-color shirt-color pants-color weapon the-story)]))))
 
 (define roulette-slices
   (lambda ()
@@ -350,44 +350,44 @@ The following random procedures produces a random list of 8 elements for the gam
     (/ (ceiling (* num 10000)) 10000)))
 
 (define math-results
-  (lambda (num answer skin-color shirt-color pants-color weapon) ;;;num is a numb while answer is a list of 2 elems
+  (lambda (num answer skin-color shirt-color pants-color weapon the-story) ;;;num is a numb while answer is a list of 2 elems
     (cond
       [(and (>= (ceiling-10000th answer) num)
             (<= (floor-10000th answer) num))
        (displayln "Right answer!\n\n")
-       (displayln (list-ref story-list 9))
+       (displayln (list-ref the-story 9))
        (displayln (level-2-win skin-color shirt-color pants-color weapon))
-       (comp-sci-game skin-color shirt-color pants-color weapon)]
+       (comp-sci-game skin-color shirt-color pants-color weapon the-story)]
       [else
        (displayln "Wrong answer!\n\n")
-       (displayln (list-ref story-list 8))
+       (displayln (list-ref the-story 8))
        (displayln (level-2-lose skin-color shirt-color pants-color weapon))
-       (chem-game skin-color shirt-color pants-color weapon)])))
+       (chem-game skin-color shirt-color pants-color weapon the-story)])))
 
 
 (define math-game
-  (lambda (skin-color shirt-color pants-color weapon)
+  (lambda (skin-color shirt-color pants-color weapon the-story)
     (let* ([slices (roulette-slices)]
            [question-lst (give-number-and-opposite-col slices)]
            [spins (give-spins)]
            [answer (math-game-calculator slices spins)])
-      (displayln (list-ref story-list 7))
+      (displayln (list-ref the-story 7))
       (displayln level-2)
       (displayln (math-game-helper slices question-lst spins))
-      (define player-choice (cheat-menu (read-line) skin-color shirt-color pants-color weapon))
+      (define player-choice (cheat-menu (read-line) skin-color shirt-color pants-color weapon the-story))
       (cond
         [(number? (string->number player-choice))
-         (math-results (string->number player-choice) answer skin-color shirt-color pants-color weapon)]
+         (math-results (string->number player-choice) answer skin-color shirt-color pants-color weapon the-story)]
         [(equal? player-choice "answer")
          (displayln (string-append "The answer is any number between " (number->string (floor-10000th answer)) " and " (number->string (ceiling-10000th answer)) "\n"))
-         (math-results (numbercheck) answer skin-color shirt-color pants-color weapon)]
+         (math-results (numbercheck) answer skin-color shirt-color pants-color weapon the-story)]
         [(equal? player-choice "retry")
-         (math-game skin-color shirt-color pants-color weapon)]
+         (math-game skin-color shirt-color pants-color weapon the-story)]
         [(equal? player-choice "teleport")
-         (teleport-menu skin-color shirt-color pants-color weapon)]
+         (teleport-menu skin-color shirt-color pants-color weapon the-story)]
         [else
          (displayln "Your answer must be a number\n")
-         (math-results (numbercheck) answer skin-color shirt-color pants-color weapon)]))))
+         (math-results (numbercheck) answer skin-color shirt-color pants-color weapon the-story)]))))
 
 ;formula = ((1/slices + ((slices - 1)/2)/slices)^times)
 
@@ -658,40 +658,40 @@ The following random procedures produces a random list of 8 elements for the gam
                  "Give the answer in this format: e\n\n\n"))
 
 (define comp-sci-results
-  (lambda (player-choice correct-answer-index options skin-color shirt-color pants-color weapon)
+  (lambda (player-choice correct-answer-index options skin-color shirt-color pants-color weapon the-story)
     (cond
       [(equal? correct-answer-index (index-of options player-choice))
        (displayln "Right answer!\nYou escaped Noyce!\n")
-       (displayln (list-ref story-list 12))
+       (displayln (list-ref the-story 12))
        (displayln (level-3-win skin-color shirt-color pants-color weapon))
        ;(exit)
        ]
       [else
        (displayln "Wrong answer!\n\n")
-       (displayln (list-ref story-list 11))
+       (displayln (list-ref the-story 11))
        (displayln level-3-lose)
-       (math-game skin-color shirt-color pants-color weapon)])))
+       (math-game skin-color shirt-color pants-color weapon the-story)])))
                  
 
 (define comp-sci-game
-  (lambda (skin-color shirt-color pants-color weapon)
+  (lambda (skin-color shirt-color pants-color weapon the-story)
     (let* ([options (list "a" "b" "c" "d")]
            [order (create-random-set-abcd (list "a" "b" "c" "d"))]
            [correct-answer-index (index-of order "d")])
-      (displayln (list-ref story-list 10))
+      (displayln (list-ref the-story 10))
       (displayln (level-3 skin-color shirt-color pants-color weapon))
       (displayln (string-append introtext (comp-sci-minigame-helper order options 0)))
-      (define player-choice (cheat-menu (string-downcase (read-line)) skin-color shirt-color pants-color weapon))
+      (define player-choice (cheat-menu (string-downcase (read-line)) skin-color shirt-color pants-color weapon the-story))
       (cond
         [(equal? player-choice "answer")
          (displayln (string-append "The correct answer is " (list-ref options correct-answer-index) "\n"))
-         (comp-sci-results (string-downcase (read-line)) correct-answer-index options skin-color shirt-color pants-color weapon)]
+         (comp-sci-results (string-downcase (read-line)) correct-answer-index options skin-color shirt-color pants-color weapon the-story)]
         [(equal? player-choice "retry")
-         (comp-sci-game skin-color shirt-color pants-color weapon)]
+         (comp-sci-game skin-color shirt-color pants-color weapon the-story)]
         [(equal? player-choice "teleport")
-         (teleport-menu skin-color shirt-color pants-color weapon)]
+         (teleport-menu skin-color shirt-color pants-color weapon the-story)]
         [else
-         (comp-sci-results player-choice correct-answer-index options skin-color shirt-color pants-color weapon)]))))
+         (comp-sci-results player-choice correct-answer-index options skin-color shirt-color pants-color weapon the-story)]))))
 
 ;;;(comp-sci-game)
 ;;;image code
@@ -1084,6 +1084,7 @@ The following random procedures produces a random list of 8 elements for the gam
         "climb"
         "stage"
         "quest"
+        "technology"
         "world"
         "intelligence"
         "threat"
@@ -1176,11 +1177,11 @@ The following random procedures produces a random list of 8 elements for the gam
 
 (define my-story
   (list "You materialize in the basement of Noyce. You feel like you’ve been saved from somehow falling into an inescapable void that would have consumed youand your soul. You see that all the doors around you are locked and the only way to escape is through the roof. You do not know what you’re doing there, why you’re there, who placed you here, or who you even are, but you begin at level 0: a dark, depressing dungeon known as the physics basement. It’s dangerous to go alone! Take this."
-        "You see the floor beneath you shaking and now you are unable to continue forward. In order to keep going, you need to clear a [x] meter long gap [y] meters below you onto a slab that is 5 meters long. Your super (weapon) allows you to achieve any speed you want, the catch is that you can’t generate any downward force (you can’t jump). How fast do you run in order to land on the 5-meter-long slab?"
+        "You see the floor beneath you shaking and now you are unable to continue forward. In order to keep going, you need to clear a jump from a known height and clear a known distance onto a slab of a known length. Your super weapon allows you to achieve any speed you want, the catch is that you can’t generate any downward force (you can’t jump). How fast do you run in order to land on the 5-meter-long slab?"
         "Congratulations, doofus! You’re either incredibly unathletic, unbelievably stupid, or just plain bad at physics. You must not have traveled at the correct speed to clear the gap, cause you just fell to your doom in the endless darkness below the surface of the earth! You’re dead!"
         "Not bad! You were either athletic enough, smart enough, or good enough at physics to clear the gap, because you figured out the correct speed to travel. As you cross the gap and continue to accelerate, you enter a strange warp tunnel with gigantic atoms flying past you. You dodge and weave through the storm of atoms flying at you, in the hope that you will not be harmed. Suddenly, you find yourself back in reality. You realize you’re on Level 1: the chemistry lab. You ALSO realize there are actual WINDOWS on this floor - giving you a glimpse into what awaits the end of your quest."
-        "You notice several cracked containers of different elements scattered across the floor. As you lean down to inspect one, you realize it’s (random element) - which could infect everyone else working in the lab and kill you! Reasoning that all the other containers must contain similarly dangerous chemicals, you decide to help clear up the mess - but the only way to do so is to sort the scattered elements based on their category. Did you pay attention in high school chemistry class?"
-        "Uh oh! You placed an element in a category that it doesn’t belong to. Triggered merely by your stupidity, one of the containers - a tanker of (the same random element) - suddenly explodes, quickly obliterating you, the entire floor and the rest of Noyce - but before the explosion can spread and consume the surrounding buildings, time stops. Suddenly, everything starts happening quickly in reverse - the explosion and your death are undone, but so is your trip through the warp tunnel, your clearing of the chasm in the basement, and the earthquake that created that chasm in the first place. You find yourself back in Level 0, exactly where you started. Some mysterious force just saved you from utter, explosive, (the same random element)-fueled oblivion, so be thankful!"
+        "You notice several cracked containers of different elements scattered across the floor. As you lean down to inspect one, you realize it’s a toxic noble gas which could infect everyone else working in the lab and kill you! Reasoning that all the other containers must contain similarly dangerous chemicals, you decide to help clear up the mess - but the only way to do so is to sort the scattered elements based on their category. Did you pay attention in high school chemistry class?"
+        "Uh oh! You placed an element in a category that it doesn’t belong to. Triggered merely by your stupidity, a gas tanker suddenly explodes, quickly obliterating you, the entire floor and the rest of Noyce - but before the explosion can spread and consume the surrounding buildings, time stops. Suddenly, everything starts happening quickly in reverse - the explosion and your death are undone, but so is your trip through the warp tunnel, your clearing of the chasm in the basement, and the earthquake that created that chasm in the first place. You find yourself back in Level 0, exactly where you started. Some mysterious force just saved you from utter, explosive, (the same random element)-fueled oblivion, so be thankful!"
         "You managed to sort them all correctly. Maybe you do have potential! The strange, poisonous cloud that pervaded the floor fades. Nearby you notice a set of stairs and climb it. Surprisingly, the climb up is uneventful - which doesn’t add up, leaving you questioning whether the next stage in your quest will be only a fraction as dangerous as it was before - or exponentially more so. You now find yourself at Level 2: the math department."
         "You are now on the Math Floor. You don’t know why, but each floor looks completely different from the other. The Math Floor looks like a world from the future. Somehow, because of all the fast thinking and the automatic calculations that the inhabitants of that floor could do, the architecture of the place changed to a futuristic white spaceship. An old man in a technological suit says to you:“Hello, our work here is deciphering enigmas, problems that sometimes go hundreds and hundreds of years without being solved. We are detectives, and we have technology from the future. There’s one particular thing about our team: Everyone loves to play a Roulette bet machine. But it involves math. If you solve the following enigma, you might be able to pass it to our teleporter to the Third Floor because you prove yourself to be an enigma solver. In our roulette, there are (random number) numbers. And two colors. What is the probability (in a fraction) of guessing the right number, with the right color, (random number between 1 and 10) times in a row?"
         "Unlucky! The old man pulls out a remote and presses a button. In a flash, you find yourself back on the chemistry floor, with the elements scattered once again and the poisonous cloud once again pervading the air. Luckily you aren’t dead, but you’ve got to re-sort the elements once again if you want to succeed!"
@@ -1252,17 +1253,32 @@ The following random procedures produces a random list of 8 elements for the gam
          spear]))
     (displayln
      (string-append "You will now customize your character!\n"
-                    "Choose your skin color\n"))
+                    "Choose your head color\n"))
     (define my-skin (give-valid-color))
     (displayln "Choose your shirt color\n")
     (define my-shirt (give-valid-color))
     (displayln "Choose your pants color\n")
     (define my-pants (give-valid-color))
-    (displayln (list-ref story-list 0))
+    (displayln "Choose your story option\n")
+    (displayln " a: default story")
+    (displayln " b: story with randomized words")
+    (define the-story (give-valid-story))
+    (displayln (list-ref the-story 0))
     (displayln (scene-1 my-skin my-shirt my-pants my-weapon))
-    (physics-game my-skin my-shirt my-pants my-weapon)))
-     
+    (physics-game my-skin my-shirt my-pants my-weapon the-story)))
 
+
+(define give-valid-story
+  (lambda ()
+    (let ([the-story (read-line)])
+      (cond
+        [(equal? the-story "a")
+         my-story]
+        [(equal? the-story "b")
+         story-list]
+        [else
+         (displayln "Please choose a proper story option\n")
+         (give-valid-story)]))))
 
 (define give-valid-color
   (lambda ()
@@ -1288,13 +1304,13 @@ The following random procedures produces a random list of 8 elements for the gam
 ;;;redo-question
 ;;;send-player-to-level
 (define cheat-menu
-  (lambda (my-answer my-skin my-shirt my-pants my-weapon)
+  (lambda (my-answer my-skin my-shirt my-pants my-weapon the-story)
     (cond
       [(equal? (string-downcase my-answer) "cheat")
        (displayln "Cheating Options:\n")
-       (displayln (string-append " a) Give answer\n"
-                                 " b) Retry question\n"
-                                 " c) Open teleport menu\n"))
+       (displayln (string-append " a: Give answer\n"
+                                 " b: Retry question\n"
+                                 " c: Open teleport menu\n"))
        (define player-choice (string-downcase(read-line)))
        (cond
          [(equal? player-choice "a")
@@ -1305,12 +1321,12 @@ The following random procedures produces a random list of 8 elements for the gam
           "teleport"]
          [else
           (displayln "Choose a proper cheating option\n")
-          (cheat-menu "cheat" my-skin my-shirt my-pants my-weapon)])]
+          (cheat-menu "cheat" my-skin my-shirt my-pants my-weapon the-story)])]
       [else
        my-answer])))
 
 (define teleport-menu
-  (lambda (my-skin my-shirt my-pants my-weapon)
+  (lambda (my-skin my-shirt my-pants my-weapon the-story)
     (displayln (string-append "Choose what floor you want to teleport to:\n"
                               " level-0\n"
                               " level-1\n"
@@ -1320,20 +1336,20 @@ The following random procedures produces a random list of 8 elements for the gam
     (cond
       [(equal? player-choice "level-0")
        (displayln "You are now being teleported to level-0\n")
-       (physics-game my-skin my-shirt my-pants my-weapon)]
+       (physics-game my-skin my-shirt my-pants my-weapon the-story)]
       [(equal? player-choice "level-1")
        (displayln "You are now being teleported to level-1\n")
-       (chem-game my-skin my-shirt my-pants my-weapon)]
+       (chem-game my-skin my-shirt my-pants my-weapon the-story)]
       [(equal? player-choice "level-2")
        (displayln "You are now being teleported to level-2\n")
-       (math-game my-skin my-shirt my-pants my-weapon)]
+       (math-game my-skin my-shirt my-pants my-weapon the-story)]
       [(equal? player-choice "level-3")
        (displayln "You are now being teleported to level-3\n")
-       (comp-sci-game my-skin my-shirt my-pants my-weapon)]
+       (comp-sci-game my-skin my-shirt my-pants my-weapon the-story)]
       [else
        (displayln "Please choose a proper level!\n")
        (displayln "Level naming scheme ex: level-2\n")
-       (teleport-menu my-skin my-shirt my-pants my-weapon)])))
+       (teleport-menu my-skin my-shirt my-pants my-weapon the-story)])))
 
 (define numbercheck
   (lambda ()
@@ -1344,3 +1360,5 @@ The following random procedures produces a random list of 8 elements for the gam
       [else
        (displayln "Your answer must be a number\n")
        (numbercheck)])))
+        
+        
