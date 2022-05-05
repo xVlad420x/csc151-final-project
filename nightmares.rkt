@@ -8,9 +8,9 @@
 ;;;y should be between 100 and 1000, x should be between 100 and 1000 and slab should be between 1 and 10
 (define give-physics-data
   (lambda ()
-  (list (- 1000 (random 901))
-        (- 1000 (random 901))
-        (- 10 (random 10)))))
+    (list (- 1000 (random 901))
+          (- 1000 (random 901))
+          (- 10 (random 10)))))
 
 ;;;returns the necessary x-velocities (xvelmin and xvelmax) in order to make it onto the slab
 (define hit-slab
@@ -19,8 +19,8 @@
            [dis-x (cadr lst)]
            [dis-slab (caddr lst)]
            [flight-time (sqrt (/ dis-y 49/10))]) ;;; y = 0.5*a*t^2, a = 9.8 gravity
-    (list (/ dis-x flight-time) ;;; v = d/t
-          (/ (+ dis-x dis-slab) flight-time)))))
+      (list (/ dis-x flight-time) ;;; v = d/t
+            (/ (+ dis-x dis-slab) flight-time)))))
 
 
 (define physics-mini-game-helper
@@ -32,20 +32,43 @@
                    "Assume gravity is 9.8m/s^2 and give the answer as a number (with or without decimals)\n")))
 
 
+(define physics-results
+  (lambda (num answer skin-color shirt-color pants-color weapon) ;;;num is a numb while answer is a list of 2 elems
+    (cond
+      [(and
+        (<= (floor (car answer)) num)
+        (>= (ceiling (cadr answer)) num))
+       (displayln "Right answer!\n\n")
+       (displayln (list-ref story-list 3))
+       (displayln (level-0-win skin-color shirt-color pants-color weapon))
+       (chem-game skin-color shirt-color pants-color weapon)]
+      [else
+       (displayln "YOU'RE DEAD\n\n")
+       (displayln (list-ref story-list 2))
+       (displayln (level-0-lose skin-color shirt-color pants-color weapon))])))
+
+
 (define physics-game
-  (lambda ()
+  (lambda (skin-color shirt-color pants-color weapon)
     (let* ([options (give-physics-data)]
            [answer (hit-slab options)])
-    (displayln (physics-mini-game-helper options))
-    (define player-choice (string->number (read-line)))
+      (displayln (list-ref story-list 1))
+      (displayln level-0)
+      (displayln (physics-mini-game-helper options))
+      (define player-choice (cheat-menu (read-line) skin-color shirt-color pants-color weapon))
       (cond
-        [(and
-          (<= (floor (car answer)) player-choice)
-          (>= (ceiling (cadr answer)) player-choice))
-         (displayln "Right answer!\n\n")
-         (chem-game)]
+        [(number? (string->number player-choice))
+         (physics-results (string->number player-choice) answer skin-color shirt-color pants-color weapon)]
+        [(equal? player-choice "answer")
+         (displayln (string-append "The answer is any number between " (number->string (floor (car answer))) " and " (number->string (ceiling (cadr answer))) "\n"))
+         (physics-results (numbercheck) answer skin-color shirt-color pants-color weapon)]
+        [(equal? player-choice "retry")
+         (physics-game skin-color shirt-color pants-color weapon)]
+        [(equal? player-choice "teleport")
+         (teleport-menu skin-color shirt-color pants-color weapon)]
         [else
-         (displayln "YOU'RE DEAD")]))))
+         (displayln "Your answer must be a number\n")
+         (physics-results (numbercheck) answer skin-color shirt-color pants-color weapon)]))))
 
 ;;(physics-game)
 ;Definitions
@@ -60,10 +83,10 @@
 
 ;test periodic-table-elements-without-noble-gases
 
-(test-equal? "brief check to see if elements were removed by looking at length"
-             (length periodic-table-elements-without-noble-gases)
-             (- (length periodic-table-elements)
-                (length periodic-table-noble-gases)))
+;(test-equal? "brief check to see if elements were removed by looking at length"
+; (length periodic-table-elements-without-noble-gases)
+; (- (length periodic-table-elements)
+;  (length periodic-table-noble-gases)))
 
 ;RANDOM PROCEDURES
 
@@ -188,24 +211,27 @@ The following random procedures produces a random list of 8 elements for the gam
 
 
 (define chem-game
-  (lambda ()
+  (lambda (skin-color shirt-color pants-color weapon)
     (let*([8-random-table-elements (8-random-elements)]
           [selected-val (random-list-element 8-random-table-elements)]
           [8-random-elements-including-noble-gases (replace-all selected-val (random-noble-gas) 8-random-table-elements)])
+      (displayln (list-ref story-list 4))
+      (displayln level-1)
       (displayln 8-random-elements-including-noble-gases)
       (displayln "which of the following is a noble gas?")
       (displayln "type answer below matching the case and comma. (Ex. O - Oxygen,)")
       (define player-choice (read-line))
       (cond
-        ;[(not (member? player-choice 8-random-elements-including-noble-gases)) 
-        ; (displayln "INVALID OPTION TRY AGAIN")
-        ; (chem-game)]
         [(member? player-choice periodic-table-noble-gases)
          (displayln "Right answer!\n\n")
-         (math-game)]
+         (displayln (list-ref story-list 6))
+         (displayln (level-1-win  skin-color shirt-color pants-color weapon))
+         (math-game skin-color shirt-color pants-color weapon)]
         [else
          (displayln "Wrong answer!\n\n")
-         (physics-game)]))))
+         (displayln (list-ref story-list 5))
+         (displayln level-1-lose)
+         (physics-game skin-color shirt-color pants-color weapon)]))))
 (define roulette-slices
   (lambda ()
     (let ([rando (random 13 102)])
@@ -260,22 +286,45 @@ The following random procedures produces a random list of 8 elements for the gam
   (lambda (num)
     (/ (ceiling (* num 10000)) 10000)))
 
+(define math-results
+  (lambda (num answer skin-color shirt-color pants-color weapon) ;;;num is a numb while answer is a list of 2 elems
+    (cond
+      [(and (>= (ceiling-10000th answer) num)
+            (<= (floor-10000th answer) num))
+       (displayln "Right answer!\n\n")
+       (displayln (list-ref story-list 9))
+       (displayln (level-2-win skin-color shirt-color pants-color weapon))
+       (comp-sci-game skin-color shirt-color pants-color weapon)]
+      [else
+       (displayln "Wrong answer!\n\n")
+       (displayln (list-ref story-list 8))
+       (displayln (level-2-lose skin-color shirt-color pants-color weapon))
+       (chem-game skin-color shirt-color pants-color weapon)])))
+
+
 (define math-game
-  (lambda ()
+  (lambda (skin-color shirt-color pants-color weapon)
     (let* ([slices (roulette-slices)]
            [question-lst (give-number-and-opposite-col slices)]
            [spins (give-spins)]
            [answer (math-game-calculator slices spins)])
+      (displayln (list-ref story-list 7))
+      (displayln level-2)
       (displayln (math-game-helper slices question-lst spins))
-      (define player-choice (string->number (read-line)))
+      (define player-choice (cheat-menu (read-line) skin-color shirt-color pants-color weapon))
       (cond
-        [(and (>= answer (floor-10000th player-choice))
-              (<= answer (ceiling-10000th player-choice)))
-         (displayln "Right answer!\n\n")
-         (comp-sci-game)]
+        [(number? (string->number player-choice))
+         (math-results (string->number player-choice) answer skin-color shirt-color pants-color weapon)]
+        [(equal? player-choice "answer")
+         (displayln (string-append "The answer is any number between " (number->string (floor-10000th answer)) " and " (number->string (ceiling-10000th answer)) "\n"))
+         (math-results (numbercheck) answer skin-color shirt-color pants-color weapon)]
+        [(equal? player-choice "retry")
+         (math-game skin-color shirt-color pants-color weapon)]
+        [(equal? player-choice "teleport")
+         (teleport-menu skin-color shirt-color pants-color weapon)]
         [else
-         (displayln "Wrong answer!\n\n")
-         (chem-game)]))))
+         (displayln "Your answer must be a number\n")
+         (math-results (numbercheck) answer skin-color shirt-color pants-color weapon)]))))
 
 ;formula = ((1/slices + ((slices - 1)/2)/slices)^times)
 
@@ -458,111 +507,569 @@ The following random procedures produces a random list of 8 elements for the gam
 (define part-d
   (lambda ()
     (random-list-element (list
-     (string-append "Write a regular expression, ab, that matches nonempty words that consist only of the letters\n"
-     "lowercase a and lowercase b and that start and end with the same letter.\n\n"
-                    "(define ab\n"
-                    " (rex-any-of\n"
-                    "  (rex-concat (rex-string " "a" ")\n"
-                    "         (rex-repeat-0 (rex-char-range " "#\a"  "#\b" "))\n"
-                    "         (rex-string " "a" "))\n"
-                    "  (rex-concat (rex-string " "b" ")\n" 
-                    "         (rex-repeat-0 (rex-char-range " "#\a" "#\b" "))\n"
-                    "         (rex-string " "b" "))\n"
-                    "  (rex-string " "a" ")\n"
-                    "  (rex-string " "b" ")))\n")
-     (string-append "Write a tail recursive procedure called replicate that takes inputs n and x.\n"
-     "Replicate should create a list with x inside the list n times (so it is n elements long).\n\n"
-                    "(define replicate\n"
-                    "  (lambda (n x)\n"
-                    "    (letrec ([replicate-helper\n"
-                    "              (lambda (n x so-far)\n"
-                    "                (if (zero? n)\n"
-                    "                    so-far\n"
-                    "                    (replicate-helper (- n 1) x (cons x so-far))))])\n"
-                    "      (replicate-helper n x '()))))\n")
-     (string-append "Write a procedure that finds the largest number in a vector\n\n"
-                    "(define number-vector-largest/helper\n"
-                    " (lambda (vec pos)\n"
-                    "   (let ([current (vector-ref vec pos)])\n"
-                    "     (if (zero? pos)\n"
-                    "         current\n"
-                    "         (max current\n"
-                    "              (number-vector-largest/helper vec (- pos 1)))))))\n\n"
-                    "(define number-vector-largest\n"
-                    " (lambda (vec)\n"
-                    "   (let ([last (- (vector-length vec) 1)])\n"
-                    "     (number-vector-largest/helper vec last))))\n")
-     (string-append "Write the append procedure yourself. Append puts two lists together into one.\n\n"
-                    "(define append\n"
-                    " (lambda (l1 l2)\n"
-                    "   (match l1\n"
-                    "     ['() l2]\n"
-                    "     [(cons x tail) (cons x (append tail l2))])))\n")
-     (string-append "Write the length procedure yourself. Length returns a number which corresponds to the length of a list.\n\n"
-                    "(define length\n"
-                    " (lambda (lst)\n"
-                    "   (if (null? lst)\n"
-                    "       0\n"
-                    "       (+ 1 (length (cdr lst))))))\n")
-     (string-append "Write a procedure that sums all the values of a binary tree consisting of only numbers\n\n"
-                    "(define binary-tree-sum\n"
-                    " (lambda (tree)\n"
-                    "   (if (empty-tree? tree)\n"
-                    "       0\n"
-                    "       (+ (bt/t tree)\n"
-                    "          (binary-tree-sum (bt/l tree))\n"
-                    "          (binary-tree-sum (bt/r tree))))))\n")
+                          (string-append "Write a regular expression, ab, that matches nonempty words that consist only of the letters\n"
+                                         "lowercase a and lowercase b and that start and end with the same letter.\n\n"
+                                         "(define ab\n"
+                                         " (rex-any-of\n"
+                                         "  (rex-concat (rex-string " "a" ")\n"
+                                         "         (rex-repeat-0 (rex-char-range " "#\a"  "#\b" "))\n"
+                                         "         (rex-string " "a" "))\n"
+                                         "  (rex-concat (rex-string " "b" ")\n" 
+                                         "         (rex-repeat-0 (rex-char-range " "#\a" "#\b" "))\n"
+                                         "         (rex-string " "b" "))\n"
+                                         "  (rex-string " "a" ")\n"
+                                         "  (rex-string " "b" ")))\n")
+                          (string-append "Write a tail recursive procedure called replicate that takes inputs n and x.\n"
+                                         "Replicate should create a list with x inside the list n times (so it is n elements long).\n\n"
+                                         "(define replicate\n"
+                                         "  (lambda (n x)\n"
+                                         "    (letrec ([replicate-helper\n"
+                                         "              (lambda (n x so-far)\n"
+                                         "                (if (zero? n)\n"
+                                         "                    so-far\n"
+                                         "                    (replicate-helper (- n 1) x (cons x so-far))))])\n"
+                                         "      (replicate-helper n x '()))))\n")
+                          (string-append "Write a procedure that finds the largest number in a vector\n\n"
+                                         "(define number-vector-largest/helper\n"
+                                         " (lambda (vec pos)\n"
+                                         "   (let ([current (vector-ref vec pos)])\n"
+                                         "     (if (zero? pos)\n"
+                                         "         current\n"
+                                         "         (max current\n"
+                                         "              (number-vector-largest/helper vec (- pos 1)))))))\n\n"
+                                         "(define number-vector-largest\n"
+                                         " (lambda (vec)\n"
+                                         "   (let ([last (- (vector-length vec) 1)])\n"
+                                         "     (number-vector-largest/helper vec last))))\n")
+                          (string-append "Write the append procedure yourself. Append puts two lists together into one.\n\n"
+                                         "(define append\n"
+                                         " (lambda (l1 l2)\n"
+                                         "   (match l1\n"
+                                         "     ['() l2]\n"
+                                         "     [(cons x tail) (cons x (append tail l2))])))\n")
+                          (string-append "Write the length procedure yourself. Length returns a number which corresponds to the length of a list.\n\n"
+                                         "(define length\n"
+                                         " (lambda (lst)\n"
+                                         "   (if (null? lst)\n"
+                                         "       0\n"
+                                         "       (+ 1 (length (cdr lst))))))\n")
+                          (string-append "Write a procedure that sums all the values of a binary tree consisting of only numbers\n\n"
+                                         "(define binary-tree-sum\n"
+                                         " (lambda (tree)\n"
+                                         "   (if (empty-tree? tree)\n"
+                                         "       0\n"
+                                         "       (+ (bt/t tree)\n"
+                                         "          (binary-tree-sum (bt/l tree))\n"
+                                         "          (binary-tree-sum (bt/r tree))))))\n")
    
 
-                    ))))
+                          ))))
 
 
 (define comp-sci-minigame-helper
   (lambda (answerlst lst2 index)
-          (cond
-            [(null? answerlst)
-                    ""]
-            [(equal? (car answerlst) "a")
-             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-a) "\n\n\n" (comp-sci-minigame-helper (cdr answerlst) lst2 (+ 1 index)))]
-            [(equal? (car answerlst) "b")
-             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-b) "\n\n\n" (comp-sci-minigame-helper (cdr answerlst) lst2 (+ 1 index)))]
-            [(equal? (car answerlst) "c")
-             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-c) "\n\n\n" (comp-sci-minigame-helper (cdr answerlst) lst2 (+ 1 index)))]
-            [(equal? (car answerlst) "d")
-             (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-d) "\n\n\n" (comp-sci-minigame-helper (cdr answerlst) lst2 (+ 1 index)))])))
+    (cond
+      [(null? answerlst)
+       ""]
+      [(equal? (car answerlst) "a")
+       (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-a) "\n\n\n" (comp-sci-minigame-helper (cdr answerlst) lst2 (+ 1 index)))]
+      [(equal? (car answerlst) "b")
+       (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-b) "\n\n\n" (comp-sci-minigame-helper (cdr answerlst) lst2 (+ 1 index)))]
+      [(equal? (car answerlst) "c")
+       (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-c) "\n\n\n" (comp-sci-minigame-helper (cdr answerlst) lst2 (+ 1 index)))]
+      [(equal? (car answerlst) "d")
+       (string-append "ANSWER CHOICE " (list-ref lst2 index) ")\n" (part-d) "\n\n\n" (comp-sci-minigame-helper (cdr answerlst) lst2 (+ 1 index)))])))
 
 (define create-random-set-abcd
   (lambda (lst);;;should be (list a b c d)
     
-     (if (null? lst)
+    (if (null? lst)
         null
         (let ([rando-element (random-list-element lst)])
-        (cons rando-element (create-random-set-abcd (remove rando-element lst)))))))
+          (cons rando-element (create-random-set-abcd (remove rando-element lst)))))))
 
 (define introtext
   (string-append "Here are 4 procedures that are syntactically correct and accomplish the task listed.\n"
                  "Although all procedures are functional, (in both senses) 3 of them are coded very poorly.\n"
                  "Choose the answer choice with the procedure that wouldn't make SamR cry (the one that is coded in the best style)\n"
                  "Give the answer in this format: e\n\n\n"))
+
+(define comp-sci-results
+  (lambda (player-choice correct-answer-index options skin-color shirt-color pants-color weapon)
+    (cond
+      [(equal? correct-answer-index (index-of options player-choice))
+       (displayln "Right answer!\nYou escaped Noyce!\n")
+       (displayln (list-ref story-list 12))
+       (displayln (level-3-win skin-color shirt-color pants-color weapon))
+       ;(exit)
+       ]
+      [else
+       (displayln "Wrong answer!\n\n")
+       (displayln (list-ref story-list 11))
+       (displayln level-3-lose)
+       (math-game skin-color shirt-color pants-color weapon)])))
                  
 
 (define comp-sci-game
-  (lambda ()
-    (let* ([options (list "A" "B" "C" "D")]
+  (lambda (skin-color shirt-color pants-color weapon)
+    (let* ([options (list "a" "b" "c" "d")]
            [order (create-random-set-abcd (list "a" "b" "c" "d"))]
            [correct-answer-index (index-of order "d")])
-    (displayln (string-append introtext (comp-sci-minigame-helper order options 0)))
-    (define player-choice (string-upcase (read-line)))
+      (displayln (list-ref story-list 10))
+      (displayln (level-3 skin-color shirt-color pants-color weapon))
+      (displayln (string-append introtext (comp-sci-minigame-helper order options 0)))
+      (define player-choice (cheat-menu (string-downcase (read-line)) skin-color shirt-color pants-color weapon))
       (cond
-        [(equal? correct-answer-index (index-of options player-choice))
-         (displayln "Right answer!\nYou escaped Noyce!\n")]
+        [(equal? player-choice "answer")
+         (displayln (string-append "The correct answer is " (list-ref options correct-answer-index) "\n"))
+         (comp-sci-results (string-downcase (read-line)) correct-answer-index options skin-color shirt-color pants-color weapon)]
+        [(equal? player-choice "retry")
+         (comp-sci-game skin-color shirt-color pants-color weapon)]
+        [(equal? player-choice "teleport")
+         (teleport-menu skin-color shirt-color pants-color weapon)]
         [else
-         (displayln "Wrong answer!\n\n")
-         (math-game)]))))
+         (comp-sci-results player-choice correct-answer-index options skin-color shirt-color pants-color weapon)]))))
 
 ;;;(comp-sci-game)
+;;;image code
+
+
+(define sword
+  (rotate -135 (above (triangle 30 'solid "silver")
+                      (rectangle 30 120 'solid "silver")
+                      (rectangle 50 20 'solid "black")
+                      (rectangle 10 30 'solid "black"))))
+(define spear
+  (above (triangle 30 'solid "silver")
+         (overlay/align 'center 'top (rotate 180 (triangle 30 'solid "silver"))
+                        (rectangle 10 200 'solid "beige"))))
+(define bow
+  (rotate -75 (wedge 60 150 'outline (pen "brown" 8 'solid 'projecting 'round))))
+
+(define choose-your-weapon
+  (beside sword spear bow))
+
+(define person
+  (lambda (skin-color shirt-color pants-color weapon)
+    (let ([base (above (circle 25 'solid skin-color)
+                       (above (rectangle 140 20 'solid shirt-color)
+                              (rectangle 40 50 'solid shirt-color))
+                       (rectangle 40 80 'solid pants-color))])
+      (cond
+        [(equal? weapon sword)
+         (overlay base weapon)]
+        [(equal? weapon spear)
+         (beside/align 'bottom base weapon)]
+        [(equal? weapon bow)
+         (beside base weapon)]
+        [else
+         (error "invalid weapon!")]))))
+
+(define scene-1
+  (lambda (skin-color shirt-color pants-color weapon)
+    (overlay/align 'center 'bottom (above (scale 0.5 (person skin-color shirt-color pants-color weapon))
+                                          (rectangle 500 50 'solid "silver"))
+                   (rectangle 500 300 'solid "black"))))
+
+(define level-0
+  (overlay (above (rotate 120 (rhombus 90 60 'solid "black"))
+                  (rotate -120 (rhombus 90 60 'solid "black"))
+                  (rotate 120 (rhombus 90 60 'solid "black"))
+                  (rotate -120 (rhombus 90 60 'solid "black")))
+           (rectangle 500 300 'solid "silver")))
+
+(define level-0-lose
+  (lambda (skin-color shirt-color pants-color weapon)
+    (overlay/align 'center 'top (above (text "A" 24 "white")
+                                       (text "A" 24 "white")
+                                       (text "A" 24 "white")
+                                       (text "A" 24 "white")
+                                       (text "A" 24 "white")
+                                       (text "A" 24 "white")
+                                       (text "A" 24 "white")
+                                       (text "A" 24 "white")
+                                       (scale .25 (person skin-color shirt-color pants-color weapon)))
+                   (overlay (rectangle 200 300 'solid "black")
+                            (rectangle 500 300 'solid "silver")))))
+
+(define level-0-win
+  (let* ([small-gray (circle 10 'solid "gray")]
+         [medium-red (circle 15 'solid "red")]
+         [large-black (circle 20 'solid "black")]
+         [warp-top-left (scale 3 (overlay/align 'left 'top small-gray medium-red large-black))]
+         [warp-bottom-left (scale 3 (overlay/align 'left 'bottom small-gray medium-red large-black))]
+         [warp-top-right (scale 3 (overlay/align 'right 'top small-gray medium-red large-black))]
+         [warp-bottom-right (scale 3 (overlay/align 'right 'bottom small-gray medium-red large-black))])
+    (lambda (skin-color shirt-color pants-color weapon)
+      (overlay (person skin-color shirt-color pants-color weapon) (overlay/align 'right 'bottom warp-bottom-right
+                                                                                 (overlay/align 'right 'top warp-top-right
+                                                                                                (overlay/align 'left 'bottom warp-bottom-left
+                                                                                                               (overlay/align 'left 'top warp-top-left
+                                                                                                                              (rectangle 500 300 'solid "lightpink")))))))))
+
+(define level-1
+  (overlay (rectangle 500 300 60 "green")(overlay (scale 2.5 (beside (rectangle 30 40 'solid 'grey)
+                                                                     (rectangle 10 40 0 'white)
+                                                                     (rectangle 30 40 'solid 'grey)
+                                                                     (rectangle 10 40 0 'white)
+                                                                     (rectangle 30 40 'solid 'grey)
+                                                                     (rectangle 10 40 0 'white)
+                                                                     (rectangle 30 40 'solid 'grey)
+                                                                     (rectangle 10 40 0 'white)
+                                                                     (rectangle 30 40 'solid 'grey)))
+                                                  (rectangle 500 300 'solid "beige"))))
+
+(define level-1-lose
+  (overlay (overlay (star-polygon 25 30 7 'solid "yellow") (star-polygon 40 30 7 'solid "orange"))
+           (above (rectangle 300 200 'solid "brown")
+                  (rectangle 500 50 'solid "black"))))
+(define level-1-win
+  (lambda (skin-color shirt-color pants-color weapon)
+    (beside/align 'bottom (rectangle 60 60 'solid "black")
+                  (rectangle 60 120 'solid "black")
+                  (above (scale .3 (person skin-color shirt-color pants-color weapon))
+                         (rectangle 60 180 'solid "black"))
+                  (rectangle 60 240 'solid "black")
+                  (rectangle 60 300 'solid "black"))))
+                  
+;;INTRODUCTORY IMAGE FOR LEVEL 2
+
+
+;;  futuristic space ship
+
+(define floor1-strct (rectangle 100 50 'solid "Gainsboro"))
+(define window (beside
+                (rectangle 8 30 'solid "Gainsboro")
+                (rectangle 10 30 'solid "royal blue")
+                (rectangle 8 30 'solid "Gainsboro")))
+(define pair-of-windows (beside
+                         window window))
+(define windows (beside
+                 pair-of-windows pair-of-windows))
+(define floor1 (overlay windows floor1-strct))
+(define building
+  (above
+   floor1 floor1 floor1 floor1 floor1 floor1 floor1))
+
+
+(define red-window (beside
+                    (rectangle 8 30 'solid "Gainsboro")
+                    (rectangle 10 30 'solid "red")
+                    (rectangle 8 30 'solid "Gainsboro")))
+(define pair-of-red-windows (beside
+                             red-window red-window))
+(define red-windows (beside
+                     pair-of-red-windows pair-of-red-windows))
+
+(define red-floor (overlay red-windows floor1-strct))
+
+(define red-wall (above
+                  red-floor red-floor red-floor red-floor red-floor red-floor red-floor))
+
+
+(define walls
+  (above
+   (rotate -90 building)
+   (overlay
+    (radial-star 32 30 40 "outline" "white")
+    (rectangle 350 80 'solid "Gainsboro"))
+   (rotate -90 red-wall)
+   (overlay
+    (radial-star 32 30 40 "outline" "white")
+    (rectangle 350 80 'solid "Gainsboro"))
+   (rotate -90 building)))
+
+
+(define arm-1
+  (lambda (color)
+    (rectangle 20 20 'solid color)))
+
+
+
+(define arm-2
+  (lambda (color)
+    (rectangle 15 182 'solid color)))
+
+(define legs
+  (beside (rectangle 15 100 'solid "olive")
+          (rectangle 20 100 'solid "Gainsboro")
+          (rectangle 15 100 'solid "olive")))
+
+(define eyes
+  (lambda (color)
+    (beside
+     (overlay
+      (square 10  'solid  color)
+      (square 20 'solid "black"))
+     (rectangle 15 4 'solid "black")
+     (overlay
+      (square 10  'solid  color)
+      (square 20 'solid "black")))))
+
+
+(define face-no-mouth
+  (lambda (color)
+    (overlay
+     (eyes color)
+     (circle 36 'solid color))))
+
+
+(define mouth-beard
+  (above
+   (rectangle 58 8 'solid "Dim Gray")
+   (overlay/align 'center 'bottom
+                  (rectangle 20 5 'solid "red")
+                  (rectangle 45 8 'solid "Dim Gray"))
+   (rectangle 35 4 'solid "Dim Gray")))
+
+(define old-man-face-1
+  (lambda (color)
+    (overlay/align 'center 'bottom
+                   mouth-beard
+                   (face-no-mouth color))))
+
+
+
+(define old-man-face
+  (lambda (color)
+    (above
+     (old-man-face-1 'pink)
+     (rectangle 30 4 'solid "Dim Gray")
+     (rectangle 25 4 'solid "Dim Gray")
+     (rectangle 24 4 'solid "Dim Gray")
+     (rectangle 21 4 'solid "Dim Gray")
+     (rectangle 18 4 'solid "Dim Gray")
+     (rectangle 16 4 'solid "Dim Gray"))))
+         
+(define old-man-chest
+  (above
+   (triangle 30 'solid "olive")
+   (old-man-face 'pink)
+   (overlay/align 'center 'top (above
+                                (rectangle 17 4 'solid "Dim Gray")
+                                (rectangle 16 4 'solid "Dim Gray")
+                                (rectangle 14 4 'solid "Dim Gray"))
+                  (rectangle 50 150 'solid 'olive))))
+
+
+(define old-man-body
+  (above
+   (beside/align 'center
+                 (arm-1 "olive")
+                 old-man-chest
+                 (arm-1 "olive"))
+   legs))
+
+(define old-man
+  (beside/align 'top
+                old-man-body
+                (rectangle 15 162 'solid "white")))
+
+(define level-2
+  (overlay/align 'center 'bottom
+                 old-man
+                 walls))
+
+
+(define level-2-win
+  (lambda (skin-color shirt-color pants-color weapon)
+    (beside/align 'bottom old-man (person skin-color shirt-color pants-color weapon)
+                  (overlay/align 'center 'bottom (rectangle 200 20 'solid 'blue)
+                                 (overlay/align 'center 'top (rectangle 200 20 'solid 'blue)
+                                                (overlay (overlay/align 'left 'center (rectangle 10 100 'solid 'black)(rectangle 100 150 'solid 'blue))
+                                                         (rectangle 200 300 'solid 'silver)))))))
+
+(define level-2-lose
+  (lambda (skin-color shirt-color pants-color weapon)
+    (overlay (person skin-color shirt-color pants-color weapon)
+             (star-polygon 7 30 7 'solid "white")
+             (star-polygon 15 30 7 'solid "skyblue")
+             (star-polygon 25 30 7 'solid "blue"))))
+
+(define level-3
+  (lambda (skin-color shirt-color pants-color weapon)
+    (beside/align 'bottom (scale .5 (person skin-color shirt-color pants-color weapon))
+                  (rectangle 100 300 0 "white")
+                  (above (overlay (rectangle 300 40 'solid "palegreen")
+                                  (rectangle 375 60 'solid "green"))
+                         (overlay (rectangle 200 40 'solid "palegreen")
+                                  (rectangle 275 60 'solid "green"))
+                         (overlay (rectangle 100 40 'solid "palegreen")
+                                  (rectangle 150 60 'solid "green"))
+                         (overlay (rectangle 40 40 'solid "palegreen")
+                                  (rectangle 50 60 'solid "green"))
+                         (overlay(rectangle 10 40 'solid "palegreen")
+                                 (rectangle 16 60 'solid "green"))))))
+
+(define level-3-win
+  (lambda (skin-color shirt-color pants-color weapon)
+    (overlay/align 'left 'top (circle 30 'solid 'yellow)
+                   (above (scale .1 (person skin-color shirt-color pants-color weapon)) (overlay/align 'center 'top (beside (rectangle 20 75 'solid 'silver)
+                                                                                                                            (rectangle 48 75 'solid 'skyblue)
+                                                                                                                            (rectangle 20 75 'solid 'silver)
+                                                                                                                            (rectangle 48 75 'solid 'skyblue)
+                                                                                                                            (rectangle 20 75 'solid 'silver)
+                                                                                                                            (rectangle 48 75 'solid 'skyblue)
+                                                                                                                            (rectangle 20 75 'solid 'silver)
+                                                                                                                            (rectangle 48 75 'solid 'skyblue)
+                                                                                                                            (rectangle 20 75 'solid 'silver))(overlay (text "Noyce" 30 'silver) (rectangle 300 200 'solid "brown")))
+                          (rectangle 500 50 'solid "black")))))
+
+(define level-3-lose
+  (above (overlay/align 'center 'bottom (scale .5 (overlay/align 'center 'top (beside (rectangle 20 75 'solid 'silver)
+                                                                                      (rectangle 48 75 'solid 'skyblue)
+                                                                                      (rectangle 20 75 'solid 'silver)
+                                                                                      (rectangle 48 75 'solid 'skyblue)
+                                                                                      (rectangle 20 75 'solid 'silver)
+                                                                                      (rectangle 48 75 'solid 'skyblue)
+                                                                                      (rectangle 20 75 'solid 'silver)
+                                                                                      (rectangle 48 75 'solid 'skyblue)
+                                                                                      (rectangle 20 75 'solid 'silver))(overlay (text "Noyce" 30 'silver) (rectangle 300 200 'solid "brown"))))
+                        (above (overlay (rectangle 300 40 'solid "palegreen")
+                                        (rectangle 375 60 'solid "green"))
+                               (overlay (rectangle 200 40 'solid "palegreen")
+                                        (rectangle 275 60 'solid "green"))
+                               (overlay (rectangle 100 40 'solid "palegreen")
+                                        (rectangle 150 60 'solid "green"))
+                               (overlay (rectangle 40 40 'solid "palegreen")
+                                        (rectangle 50 60 'solid "green"))
+                               (overlay(rectangle 10 40 'solid "palegreen")
+                                       (rectangle 16 60 'solid "green"))))
+         (rectangle 500 50 'solid "black")))
+    
+    
+                 
+(define sequence-list (list "intro" "level-0" "level-0-lose" "level-0-win"
+                            "level-1" "level-1-lose" "level-1-win"
+                            "level-2" "level-2-lose" "level-2-win"
+                            "level-3" "level-3-lose" "level-3-win"))
+
+(define image-or-proc-list
+  (list "p" "i" "p" "p"
+        "i" "i" "p"
+        "i" "p" "p"
+        "p" "i" "p"))
+
+(define story-list
+  (list "intro-placeholder\n" "level-0-text-placeholder\n" "level-0-lose-text-placeholder\n" "level-0-win-text-placeholder\n"
+        "level-1-text-placeholder\n" "level-1-lose-text-placeholder\n" "level-1-win-text-placeholder\n"
+        "level-2-text-placeholder\n" "level-2-lose-text-placeholder\n" "level-2-win-text-placeholder\n"
+        "level-3-text-placeholder\n" "level-3-lose-text-placeholder\n" "level-3-win-text-placeholder\n"))
+        
+
+(define image/proc-list
+  (list scene-1 choose-your-weapon level-0 level-0-lose level-0-win
+        level-1 level-1-lose level-1-win
+        level-2 level-2-lose level-2-win
+        level-3 level-3-lose level-3-win))
 
 (define nightmares-at-noyce
   (lambda ()
-    (physics-game)))
-    
+    (displayln
+     (string-append "Welcome to Nightmares at Noyce!\n"
+                    "Choose your main weapon!\n"
+                    "Your choices are: bow, spear, and sword"))
+    (displayln (list-ref image/proc-list 1))
+    (define choice (give-valid-weapon))
+    (define my-weapon
+      (cond
+        [(equal? choice "bow")
+         bow]
+        [(equal? choice "sword")
+         sword]
+        [(equal? choice "spear")
+         spear]))
+    (displayln
+     (string-append "You will now customize your character!\n"
+                    "Choose your skin color\n"))
+    (define my-skin (give-valid-color))
+    (displayln "Choose your shirt color\n")
+    (define my-shirt (give-valid-color))
+    (displayln "Choose your pants color\n")
+    (define my-pants (give-valid-color))
+    (displayln (list-ref story-list 0))
+    (displayln (scene-1 my-skin my-shirt my-pants my-weapon))
+    (physics-game my-skin my-shirt my-pants my-weapon)))
+     
+
+
+(define give-valid-color
+  (lambda ()
+    (let ([my-color (read-line)])
+      (cond
+        [(image-color? my-color)
+         my-color]
+        [else
+         (displayln "Please give a valid color\n")
+         (give-valid-color)]))))
+
+(define give-valid-weapon
+  (lambda ()
+    (let ([my-weapo (read-line)])
+      (cond
+        [(member? my-weapo (list "bow" "sword" "spear"))
+         my-weapo]
+        [else
+         (displayln "Please enter a valid weapon")
+         (give-valid-weapon)]))))
+
+;;;give-answer
+;;;redo-question
+;;;send-player-to-level
+(define cheat-menu
+  (lambda (my-answer my-skin my-shirt my-pants my-weapon)
+    (cond
+      [(equal? (string-downcase my-answer) "cheat")
+       (displayln "Cheating Options:\n")
+       (displayln (string-append " a) Give answer\n"
+                                 " b) Retry question\n"
+                                 " c) Open teleport menu\n"))
+       (define player-choice (string-downcase(read-line)))
+       (cond
+         [(equal? player-choice "a")
+          "answer"]
+         [(equal? player-choice "b")
+          "retry"]
+         [(equal? player-choice "c")
+          "teleport"]
+         [else
+          (displayln "Choose a proper cheating option\n")
+          (cheat-menu "cheat" my-skin my-shirt my-pants my-weapon)])]
+      [else
+       my-answer])))
+
+(define teleport-menu
+  (lambda (my-skin my-shirt my-pants my-weapon)
+    (displayln (string-append "Choose what floor you want to teleport to:\n"
+                              " level-0\n"
+                              " level-1\n"
+                              " level-2\n"
+                              " level-3\n"))
+    (define player-choice (string-downcase(read-line)))
+    (cond
+      [(equal? player-choice "level-0")
+       (displayln "You are now being teleported to level-0\n")
+       (physics-game my-skin my-shirt my-pants my-weapon)]
+      [(equal? player-choice "level-1")
+       (displayln "You are now being teleported to level-1\n")
+       (chem-game my-skin my-shirt my-pants my-weapon)]
+      [(equal? player-choice "level-2")
+       (displayln "You are now being teleported to level-2\n")
+       (math-game my-skin my-shirt my-pants my-weapon)]
+      [(equal? player-choice "level-3")
+       (displayln "You are now being teleported to level-3\n")
+       (comp-sci-game my-skin my-shirt my-pants my-weapon)]
+      [else
+       (displayln "Please choose a proper level!\n")
+       (displayln "Level naming scheme ex: level-2\n")
+       (teleport-menu my-skin my-shirt my-pants my-weapon)])))
+
+(define numbercheck
+  (lambda ()
+    (define player-choice (read-line))
+    (cond
+      [(number? (string->number player-choice))
+       (string->number player-choice)]
+      [else
+       (displayln "Your answer must be a number\n")
+       (numbercheck)])))
