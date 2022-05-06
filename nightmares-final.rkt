@@ -4,6 +4,21 @@
 (provide (all-defined-out))
 (require rackunit)
 
+;; CSC-151-02: Spring 2022
+;; Mini Project 7
+;; Authors: Peter Murphy, Krishna Nayar, Diego Rodrigues, Bryant Nguyen
+;;05/05/2022
+;; NIGHTMARES AT NOYCE
+;;Acknowledgments: We divided the project's parts between ourselves: 
+;;Krishna worked on the images, writing the story, and in the text-swap tool. 
+;;Bryant worked on the Chem Game.
+;;Peter worked on Physics Game, CS-Game and Math-Game, the level-system, and the cheat code.
+;;Diego worked on the Math game, on some images, story, and documentation.
+;; We all worked together on the creative process.
+
+;;To run the game, input (nightmares-at-noyce)
+
+;;Physics mini-game codes
 
 ;;; (give-physics-data) -> lst?
 ;;;returns a list containing a y-height of jump, x min distance of jump and slab length
@@ -94,6 +109,8 @@
         [else
          (displayln "Your answer must be a number\n")
          (physics-results (numbercheck) answer skin-color shirt-color pants-color weapon the-story)]))))
+         
+ ;; Chem-game codes
 
 ;Definitions
 (define periodic-table-elements
