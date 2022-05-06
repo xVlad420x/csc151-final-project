@@ -13,7 +13,7 @@
 ;;Krishna worked on the images, writing the story, and in the text-swap tool. 
 ;;Bryant worked on the Chem Game.
 ;;Peter worked on Physics Game, CS-Game and Math-Game, the level-system, and the cheat code.
-;;Diego worked on the Math game, on some images, story, and documentation.
+;;Diego worked on the Math game, on images, story, and documentation.
 ;; We all worked together on the creative process.
 
 ;;To run the game, input (nightmares-at-noyce)
